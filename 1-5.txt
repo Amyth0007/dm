@@ -1,0 +1,424 @@
+Practical 1
+#mean,median,mode
+def get_user_input():
+    data = input("Enter a list of numbers separated by spaces: ")
+    return list(map(float, data.split()))
+
+def calculate_mean(data):
+    return sum(data) / len(data)
+
+def calculate_mode(data):
+    frequency = {}
+    for item in data:
+        frequency[item] = frequency.get(item, 0) + 1
+    mode = [k for k, v in frequency.items() if v == max(frequency.values())]
+    return mode
+
+def calculate_median(data):
+    sorted_data = sorted(data)
+    n = len(sorted_data)
+    if n % 2 == 0:
+        return (sorted_data[n//2 - 1] + sorted_data[n//2]) / 2
+    else:
+        return sorted_data[n//2]
+
+def calculate_variance(data):
+    mean = calculate_mean(data)
+    return sum((x - mean) ** 2 for x in data) / len(data)
+
+def calculate_standard_deviation(data):
+    return (calculate_variance(data)) ** 0.5
+
+# Get user input
+data = get_user_input()
+
+# Calculate statistics
+mean = calculate_mean(data)
+mode = calculate_mode(data)
+median = calculate_median(data)
+variance = calculate_variance(data)
+standard_deviation = calculate_standard_deviation(data)
+
+print(f"Mean: {mean}")
+print(f"Mode: {mode}")
+print(f"Median: {median}")
+print(f"Variance: {variance}")
+print(f"Standard Deviation: {standard_deviation}")
+**************************
+#Normalisation
+def min_max_scaling(data):
+    min_val = min(data)
+    max_val = max(data)
+    scaled_data = [(x - min_val) / (max_val - min_val) for x in data]
+    return scaled_data
+
+def z_score_normalization(data):
+    mean = sum(data) / len(data)
+    std_dev = (sum((x - mean)**2 for x in data) / len(data)) ** 0.5
+    normalized_data = [(x - mean) / std_dev for x in data]
+    return normalized_data
+
+def decimal_scaling(data):
+    max_value = max(abs(x) for x in data)
+    num_digits = len(str(max_value))
+    scaled_data = [x / (10 ** num_digits) for x in data]
+    return scaled_data
+
+# Example usage
+#data = [5, 10, 15, 20, 25]
+data= [float(val) for val in input("Enter the data (comma-separated): ").split(',')]
+min_max_scaled = min_max_scaling(data)
+z_score_normalized = z_score_normalization(data)
+decimal_scaled = decimal_scaling(data)
+
+print(f"Min-Max Scaled Data: {min_max_scaled}")
+print(f"Z-Score Normalized Data: {z_score_normalized}")
+print(f"Decimal Scaled Data: {decimal_scaled}")
+***************************************************
+
+*******************Practical 2***************************
+
+def generate_candidates(prev_candidates, k):
+    candidates = set()
+    for itemset1 in prev_candidates:
+        for itemset2 in prev_candidates:
+            union = itemset1.union(itemset2)
+            if len(union) == k:
+                candidates.add(union)
+    return candidates
+
+
+def support_count(transactions, itemset):
+    count = 0
+    for transaction in transactions:
+        if itemset.issubset(transaction):
+            count += 1
+    return count
+
+
+def apriori(transactions, min_support):
+    itemsets = []
+    k = 1
+    unique_items = set(item for transaction in transactions for item in transaction)
+    candidates = set(frozenset([item]) for item in unique_items)
+
+    while candidates:
+        frequent_itemsets = []
+        for itemset in candidates:
+            support = support_count(transactions, itemset)
+            if support >= min_support:
+                frequent_itemsets.append((itemset, support))
+        itemsets.extend(frequent_itemsets)
+        k += 1
+        candidates = generate_candidates(set(itemset for itemset, _ in frequent_itemsets), k)
+
+    return itemsets
+
+
+def generate_rules(frequent_itemsets, transactions, min_confidence):
+    rules = []
+    for itemset, support in frequent_itemsets:
+        if len(itemset) > 1:
+            for item in itemset:
+                antecedent = frozenset([item])
+                consequent = itemset - antecedent
+                confidence = support_count(transactions, itemset) / support_count(transactions, antecedent)
+                if confidence >= min_confidence:
+                    rules.append((antecedent, consequent, confidence))
+    return rules
+
+
+# Take user input for transactions
+transactions = []
+num_transactions = int(input("Enter the number of transactions: "))
+for i in range(num_transactions):
+    items = input(f"Enter items for transaction {i + 1} (comma-separated): ").split(',')
+    transactions.append(set([item.strip() for item in items]))
+
+# Take user input for minimum support and confidence
+min_support = int(input("Enter the minimum support count: "))
+min_confidence = float(input("Enter the minimum confidence (between 0 and 1): "))
+
+# Find frequent itemsets
+frequent_itemsets = apriori(transactions, min_support)
+
+# Generate association rules
+association_rules = generate_rules(frequent_itemsets, transactions, min_confidence)
+
+# Print frequent itemsets
+print("\nFrequent Itemsets:")
+for itemset, support in frequent_itemsets:
+    print(f"{set(itemset)} : {support}")
+
+# Print association rules
+print("\nAssociation Rules:")
+for antecedent, consequent, confidence in association_rules:
+    print(f"{set(antecedent)} => {set(consequent)} : {confidence}")
+***********************OUTPUT***************************
+Enter the number of transactions: 5
+Enter items for transaction 1 (comma-separated): bread,milk
+Enter items for transaction 2 (comma-separated): milk,diaper,butter,coke
+Enter items for transaction 3 (comma-separated): bread,milk,diaper,coke
+Enter items for transaction 4 (comma-separated): diaper,bread,coke
+Enter items for transaction 5 (comma-separated): coke,diaper,bread,butter
+Enter the minimum support count: 1
+Enter the minimum confidence (between 0 and 1): 0.6
+
+Frequent Itemsets:
+{'milk'} : 3
+{'butter'} : 2
+{'coke'} : 4
+{'diaper'} : 4
+{'bread'} : 4
+{'bread', 'butter'} : 1
+{'coke', 'bread'} : 3
+{'diaper', 'butter'} : 2
+{'diaper', 'milk'} : 2
+{'milk', 'bread'} : 2
+{'diaper', 'coke'} : 4
+{'coke', 'butter'} : 2
+{'milk', 'coke'} : 2
+{'diaper', 'bread'} : 3
+{'milk', 'butter'} : 1
+{'diaper', 'milk', 'butter'} : 1
+{'bread', 'coke', 'butter'} : 1
+{'diaper', 'milk', 'coke'} : 2
+{'diaper', 'coke', 'bread'} : 3
+{'diaper', 'bread', 'butter'} : 1
+{'milk', 'coke', 'butter'} : 1
+{'diaper', 'milk', 'bread'} : 1
+{'diaper', 'coke', 'butter'} : 2
+{'milk', 'coke', 'bread'} : 1
+{'diaper', 'milk', 'coke', 'butter'} : 1
+{'diaper', 'bread', 'coke', 'butter'} : 1
+{'diaper', 'milk', 'coke', 'bread'} : 1
+
+Association Rules:
+{'coke'} => {'bread'} : 0.75
+{'bread'} => {'coke'} : 0.75
+{'butter'} => {'diaper'} : 1.0
+{'milk'} => {'diaper'} : 0.6666666666666666
+{'milk'} => {'bread'} : 0.6666666666666666
+{'diaper'} => {'coke'} : 1.0
+{'coke'} => {'diaper'} : 1.0
+{'butter'} => {'coke'} : 1.0
+{'milk'} => {'coke'} : 0.6666666666666666
+{'diaper'} => {'bread'} : 0.75
+{'bread'} => {'diaper'} : 0.75
+{'milk'} => {'diaper', 'coke'} : 0.6666666666666666
+{'diaper'} => {'coke', 'bread'} : 0.75
+{'coke'} => {'diaper', 'bread'} : 0.75
+{'bread'} => {'diaper', 'coke'} : 0.75
+{'butter'} => {'diaper', 'coke'} : 1.0
+******************************************************
+Practical 3 
+
+def calculate_mean(data):
+    return sum(data) / len(data)
+
+def calculate_slope(x, y, x_mean, y_mean):
+    numerator = sum((x[i] - x_mean) * (y[i] - y_mean) for i in range(len(x)))
+    denominator = sum((x[i] - x_mean) ** 2 for i in range(len(x)))
+    return numerator / denominator
+
+def calculate_intercept(x_mean, y_mean, slope):
+    return y_mean - slope * x_mean
+
+def linear_regression(x, y):
+    x_mean = calculate_mean(x)
+    y_mean = calculate_mean(y)
+
+    slope = calculate_slope(x, y, x_mean, y_mean)
+    intercept = calculate_intercept(x_mean, y_mean, slope)
+
+    return slope, intercept
+
+# Take user inputs for x and y
+# Given data
+#x = [10, 92, 15, 10, 16, 11, 16]
+#y = [95, 80, 10, 50, 45, 98, 38]
+x = [float(val) for val in input("Enter values of x (comma-separated): ").split(',')]
+y = [float(val) for val in input("Enter values of y (comma-separated): ").split(',')]
+
+slope, intercept = linear_regression(x, y)
+
+print(f"Slope: {slope}")
+print(f"Intercept: {intercept}")
+print(f"y = {slope} x + {intercept}")
+**********Output**************
+ Enter values of x (comma-separated): 10, 92, 15, 10, 16, 11, 16
+Enter values of y (comma-separated): 95, 80, 10, 50, 45, 98, 38
+Slope: 0.2342003496318271
+Intercept: 53.74084865179849
+y = 0.2342003496318271 x + 53.74084865179849
+*********************************************
+Practical 4
+
+#Without using math
+# Sample dataset
+data = [
+    {'outlook': 'sunny', 'temp': 'hot', 'humidity': 'high', 'windy': False, 'play': 'no'},
+    {'outlook': 'sunny', 'temp': 'hot', 'humidity': 'high', 'windy': True, 'play': 'no'},
+    {'outlook': 'overcast', 'temp': 'hot', 'humidity': 'high', 'windy': False, 'play': 'yes'},
+    {'outlook': 'rainy', 'temp': 'mild', 'humidity': 'high', 'windy': False, 'play': 'yes'},
+    {'outlook': 'rainy', 'temp': 'cool', 'humidity': 'normal', 'windy': False, 'play': 'yes'},
+    {'outlook': 'rainy', 'temp': 'cool', 'humidity': 'normal', 'windy': True, 'play': 'no'},
+    {'outlook': 'overcast', 'temp': 'cool', 'humidity': 'normal', 'windy': True, 'play': 'yes'},
+    {'outlook': 'sunny', 'temp': 'mild', 'humidity': 'high', 'windy': False, 'play': 'no'},
+    {'outlook': 'sunny', 'temp': 'cool', 'humidity': 'normal', 'windy': False, 'play': 'yes'},
+    {'outlook': 'rainy', 'temp': 'mild', 'humidity': 'normal', 'windy': False, 'play': 'yes'},
+    {'outlook': 'sunny', 'temp': 'mild', 'humidity': 'normal', 'windy': True, 'play': 'yes'},
+    {'outlook': 'overcast', 'temp': 'mild', 'humidity': 'high', 'windy': True, 'play': 'yes'},
+    {'outlook': 'overcast', 'temp': 'hot', 'humidity': 'normal', 'windy': False, 'play': 'yes'},
+    {'outlook': 'rainy', 'temp': 'mild', 'humidity': 'high', 'windy': True, 'play': 'no'}
+]
+
+def calculate_entropy(data):
+    total = len(data)
+    if total == 0:
+        return 0
+
+    # Count the occurrences of each class
+    class_counts = {}
+    for entry in data:
+        label = entry['play']
+        if label in class_counts:
+            class_counts[label] += 1
+        else:
+            class_counts[label] = 1
+
+    # Calculate entropy
+    entropy = 0
+    for count in class_counts.values():
+        probability = count / total
+        if probability > 0:  # Avoid log(0)
+            entropy -= probability * (probability**0.5)  # Using square root as base for logarithm
+    return entropy
+
+def calculate_information_gain(data, attribute):
+    total = len(data)
+    if total == 0:
+        return 0
+
+    # Calculate the weighted entropy for the given attribute
+    weighted_entropy = 0
+    attribute_values = set(entry[attribute] for entry in data)
+    for value in attribute_values:
+        subset = [entry for entry in data if entry[attribute] == value]
+        subset_entropy = calculate_entropy(subset)
+        subset_weight = len(subset) / total
+        weighted_entropy += subset_weight * subset_entropy
+
+    # Calculate information gain
+    return calculate_entropy(data) - weighted_entropy
+
+# Example usage
+information_gains = {}
+for attribute in ['outlook', 'temp', 'humidity', 'windy']:
+    information_gain = calculate_information_gain(data, attribute)
+    information_gains[attribute] = information_gain
+
+print("Information Gains:")
+for attribute, gain in information_gains.items():
+    print(f"{attribute}: {gain}")
+*******************************************
+#With using math
+import math
+
+# Sample dataset
+data = [
+    {'outlook': 'sunny', 'temp': 'hot', 'humidity': 'high', 'windy': False, 'play': 'no'},
+    {'outlook': 'sunny', 'temp': 'hot', 'humidity': 'high', 'windy': True, 'play': 'no'},
+    {'outlook': 'overcast', 'temp': 'hot', 'humidity': 'high', 'windy': False, 'play': 'yes'},
+    {'outlook': 'rainy', 'temp': 'mild', 'humidity': 'high', 'windy': False, 'play': 'yes'},
+    {'outlook': 'rainy', 'temp': 'cool', 'humidity': 'normal', 'windy': False, 'play': 'yes'},
+    {'outlook': 'rainy', 'temp': 'cool', 'humidity': 'normal', 'windy': True, 'play': 'no'},
+    {'outlook': 'overcast', 'temp': 'cool', 'humidity': 'normal', 'windy': True, 'play': 'yes'},
+    {'outlook': 'sunny', 'temp': 'mild', 'humidity': 'high', 'windy': False, 'play': 'no'},
+    {'outlook': 'sunny', 'temp': 'cool', 'humidity': 'normal', 'windy': False, 'play': 'yes'},
+    {'outlook': 'rainy', 'temp': 'mild', 'humidity': 'normal', 'windy': False, 'play': 'yes'},
+    {'outlook': 'sunny', 'temp': 'mild', 'humidity': 'normal', 'windy': True, 'play': 'yes'},
+    {'outlook': 'overcast', 'temp': 'mild', 'humidity': 'high', 'windy': True, 'play': 'yes'},
+    {'outlook': 'overcast', 'temp': 'hot', 'humidity': 'normal', 'windy': False, 'play': 'yes'},
+    {'outlook': 'rainy', 'temp': 'mild', 'humidity': 'high', 'windy': True, 'play': 'no'}
+]
+
+def calculate_entropy(data):
+    total = len(data)
+    if total == 0:
+        return 0
+
+    # Count the occurrences of each class
+    class_counts = {}
+    for entry in data:
+        label = entry['play']
+        if label in class_counts:
+            class_counts[label] += 1
+        else:
+            class_counts[label] = 1
+
+    # Calculate entropy
+    entropy = 0
+    for count in class_counts.values():
+        probability = count / total
+        entropy -= probability * math.log2(probability)
+
+    return entropy
+
+def calculate_information_gain(data, attribute):
+    total = len(data)
+    if total == 0:
+        return 0
+
+    # Calculate the weighted entropy for the given attribute
+    weighted_entropy = 0
+    attribute_values = set(entry[attribute] for entry in data)
+    for value in attribute_values:
+        subset = [entry for entry in data if entry[attribute] == value]
+        subset_entropy = calculate_entropy(subset)
+        subset_weight = len(subset) / total
+        weighted_entropy += subset_weight * subset_entropy
+
+    # Calculate information gain
+    return calculate_entropy(data) - weighted_entropy
+
+# Example usage
+information_gains = {}
+for attribute in ['outlook', 'temp', 'humidity', 'windy']:
+    information_gain = calculate_information_gain(data, attribute)
+    information_gains[attribute] = information_gain
+
+print("Information Gains:")
+for attribute, gain in information_gains.items():
+    print(f"{attribute}: {gain}")
+****************************************************
+Practical 5 
+
+# Euclidean Distance
+def euclidean_distance(point1, point2):
+    return sum((x - y) ** 2 for x, y in zip(point1, point2)) ** 0.5
+
+# Manhattan Distance
+def manhattan_distance(point1, point2):
+    return sum(abs(x - y) for x, y in zip(point1, point2))
+
+# Minkowski Distance
+def minkowski_distance(point1, point2, p):
+    return sum(abs(x - y) ** p for x, y in zip(point1, point2)) ** (1/p)
+
+# Example usage
+#point1 = [1, 2, 3]
+#point2 = [4, 5, 6]
+point1 = [float(val) for val in input("Enter point1 (comma-separated): ").split(',')]
+point2 = [float(val) for val in input("Enter point1 (comma-separated): ").split(',')]
+# Calculate distances
+euclidean_dist = euclidean_distance(point1, point2)
+manhattan_dist = manhattan_distance(point1, point2)
+minkowski_dist = minkowski_distance(point1, point2, p=3)
+
+print(f"Euclidean Distance: {euclidean_dist}")
+print(f"Manhattan Distance: {manhattan_dist}")
+print(f"Minkowski Distance (p=3): {minkowski_dist}")
+************************************************
+
+
