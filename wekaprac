@@ -1,1 +1,46 @@
 https://chat.openai.com/share/64d6d71f-b0aa-4cce-9c90-736526573654
+
+10) Implement Hierarchical Clustering using WEKA  tool,
+
+
+Instructions : Use knowledge
+flow environment. Describe the use of each component used also discuss the
+clustering results
+
+
+Steps: 
+
+1. Open weka and select knowledge flow.
+
+2. Drag and drop Arff loader from Data sources tab.
+
+3. Drag and drop Training set maker and Test set maker from
+Evaluation tab.
+
+4. Drag and drop Hierarchical cluster from Clusters tab.
+
+5. Drag and drop Cluster Performance Evaluator from
+Evaluation tab.
+
+6. Finally drag and drop Test viewer from Visualization tab.
+
+7. Now pass dataset from arff loader to training set and test
+set maker further to hierarchical
+
+cluster for clustering.
+
+8. Next batch cluster Hierarchical cluster for cluster
+performance evaluation
+
+9. Pass text from Cluster performance evaluator to Text
+viewer in order to view result in
+
+text format.
+
+10. Configure arff loader by selecting weathernumeric.arff
+and start loading.
+
+11. For result right click on Text viewer and select Show
+result, the result will be displayed.
+
+
