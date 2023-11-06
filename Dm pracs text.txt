@@ -1,0 +1,552 @@
+===========Practical – 1================
+Program:
+1.	Min max normalization
+
+#include <bits/stdc++.h>
+#include<limits.h>
+using namespace std;
+void minmaxnormalization(vector<int> &normalized, int m){
+    double maxi = INT_MIN;
+    double mini = INT_MAX;
+    for(int i = 0;i<m;i++){
+        if(normalized[i]>maxi){
+            maxi = normalized[i];
+        }
+        if(normalized[i]<mini){
+            mini = normalized[i];
+        }
+    }
+    double nmax = 1;
+    double nmin = 0;
+    for(int i = 0;i<m;i++){
+        normalized[i]-=((normalized[i]-mini)/(maxi-mini))*((nmax-nmin)+nmin);
+    }
+}
+int main() {
+    int arr[10] = {2,3,1,4,5,9,8,6,4,10};
+    int n = sizeof(arr)/sizeof(arr[0]);
+    cout<<"Unnormalized data: "<<endl;
+    for(int i = 0;i<n;i++){
+        cout<<arr[i]<<" ";
+    }
+    cout<<endl;
+    vector<int> normalized;
+    for(int i = 0;i<n;i++){
+        normalized.push_back(arr[i]);
+    }
+    int m = normalized.size();
+    minmaxnormalization(normalized,m);
+    cout<<"Normalized data: "<<endl;
+    for(auto it: normalized){
+        cout<<it<<" ";
+    }
+    return 0;
+}
+
+
+
+
+
+Output:
+ 
+
+      2.	Decimal scaling normalization
+
+Program:
+#include<limits.h>
+#include<bits/stdc++.h>
+using namespace std;
+void decimalscaling(vector<float> &normalized, int m){
+    int maxi = INT_MIN;
+    for(int i = 0;i<m;i++){
+        if(normalized[i]>maxi){
+            maxi = normalized[i];
+        }
+    }
+    int j = 0;
+    int s = maxi;
+    while(s>0)
+    {
+        s=s/10;
+        ++j;
+    }
+    // cout<<j<<endl;
+    float abs = pow(10,j);
+    // cout<<abs<<endl;
+    for(int i = 0;i<m;i++){
+        normalized[i] = (normalized[i]/abs);
+    }
+}
+int main() {
+    // HERE YOU GO!;
+    int arr[10] = {2,3,1,4,5,9,8,6,4,10};
+    int n = sizeof(arr)/sizeof(arr[0]);
+    cout<<"Unnormalized data: "<<endl;
+    for(int i = 0;i<n;i++){
+        cout<<arr[i]<<" ";
+    }
+    cout<<endl;
+    vector<float> normalized;
+    for(int i = 0;i<n;i++){
+        normalized.push_back(arr[i]);
+    }
+    int m = normalized.size();
+    decimalscaling(normalized,m);
+    cout<<"Normalized data: "<<endl;
+    for(auto it: normalized){
+        cout<<it<<" ";
+    }
+    return 0;
+}
+
+Output:
+ 
+
+3.	Z-scaling normalization
+
+
+Program:
+
+#include<limits.h>
+#include<bits/stdc++.h>
+using namespace std;
+double mean(double arr[], int n){
+    double sm = 0;
+    for(int i = 0;i<n;i++){
+        sm+=arr[i];
+    }
+    return sm/n;
+}
+double standarddeviation(double arr[], int n, double mean){
+    double sd = 0;
+    for(int i = 0;i<n;i++){
+        sd+=pow(arr[i]-mean,2);
+    }
+    double val = sd/(n-1);
+    double res = sqrt(val);
+    return res;
+}
+void zscaling(vector<float> &normalized, int m, double sd, double mean){
+        for(int i=0;i<m;i++){
+            normalized[i] = (normalized[i]-mean)/sd;
+        }
+}
+int main() {
+    double arr[4] = {8,10,15,20};
+    int n = sizeof(arr)/sizeof(arr[0]);
+    cout<<"Unnormalized data: "<<endl;
+    for(int i = 0;i<n;i++){
+        cout<<arr[i]<<" ";
+    }
+    cout<<endl;
+    vector<float> normalized;
+    for(int i = 0;i<n;i++){
+        normalized.push_back(arr[i]);
+    }
+    int m = normalized.size();
+    double res1 = mean(arr,n);
+    double sd = standarddeviation(arr,n,res1);
+    zscaling(normalized,m,sd,res1);
+    cout<<"Normalized data: "<<endl;
+    for(auto it: normalized){
+        cout<<it<<" ";
+    }
+    return 0;
+}
+
+Output:
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+=================Practical -2=========
+Program:
+
+**Run this command in terminal ->    pip install mlxtend
+
+Code - 
+
+dataset = [ ["Milk", "Eggs", "Bread"],
+    ["Milk", "Eggs"],
+    ["Milk", "Bread"],
+    ["Eggs", "Apple"],]
+import pandas as pd
+from mlxtend.preprocessing import TransactionEncoder
+te = TransactionEncoder()
+te_array = te.fit(dataset).transform(dataset)
+df = pd.DataFrame(te_array, columns=te.columns_)
+from mlxtend.frequent_patterns import apriori
+frequent_itemsets_ap = apriori(df, min_support=0.01, use_colnames=True)
+from mlxtend.frequent_patterns import association_rules
+rules_ap = association_rules(frequent_itemsets_ap, metric="confidence", min_threshold=0.8)
+print(dataset)
+print(df)
+print(frequent_itemsets_ap)
+print(rules_ap)
+
+
+
+Output:
+
+#print(dataset)
+[['Milk', 'Eggs', 'Bread'], ['Milk', 'Eggs'], ['Milk', 'Bread'], ['Eggs', 'Apple']]
+
+#print(df)
+   Apple  Bread   Eggs   Milk
+0  False   True   True   True
+1  False  False   True   True
+2  False   True  False   True
+3   True  False   True  False
+
+#print(frequent_itemsets_ap)
+   support             itemsets
+0     0.25              (Apple)
+1     0.50              (Bread)
+2     0.75               (Eggs)
+3     0.75               (Milk)
+4     0.25        (Eggs, Apple)
+5     0.25        (Eggs, Bread)
+6     0.50        (Milk, Bread)
+7     0.50         (Eggs, Milk)
+8     0.25  (Eggs, Milk, Bread)
+
+#print(rules_ap)
+     antecedents consequents  antecedent support  consequent support  ...      lift  leverage  conviction  zhangs_metric
+0        (Apple)      (Eggs)                0.25                0.75  ...  1.333333    0.0625         inf       0.333333
+1        (Bread)      (Milk)                0.50                0.75  ...  1.333333    0.1250         inf       0.500000
+2  (Eggs, Bread)      (Milk)                0.25                0.75  ...  1.333333    0.0625         inf       0.333333
+
+
+
+
+
+
+===============Practical – 3==========================
+Linear Regression
+Program:
+
+import numpy as np
+from matplotlib import pyplot as plt
+def estimate(x,y):
+   n = np.size(x)
+
+   x1 = np.mean(x);
+   y1 = np.mean(y);
+
+   ssxy = np.sum(y*x) - n*y1*x1;
+   ssxx = np.sum(x*x) - n * x1 * x1;
+
+   b1 = ssxy/ssxx
+   b0 = y1 - b1*x1;
+
+   return (b0,b1)
+
+def plot(x,y,b):
+   plt.scatter(x,y, marker="o", color="g")
+   yp = b[0] + b[1]*x;
+   plt.plot(x,yp, color="m")
+   plt.show()
+
+x = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+y = np.array([1, 3, 2, 5, 7, 8, 8, 9, 10, 12])
+
+b = estimate(x,y)
+
+print("Estimated coefficients:\nb0 = {}  \
+         \nb1 = {}".format(b[0], b[1]))
+
+plot(x,y,b)
+
+
+
+Output:
+ 
+===================Practical – 4====================
+Program:
+
+import numpy as np 
+import pandas as pd 
+from sklearn.metrics import confusion_matrix 
+from sklearn.model_selection import train_test_split 
+from sklearn.tree import DecisionTreeClassifier 
+from sklearn.metrics import accuracy_score 
+from sklearn.metrics import classification_report 
+
+# Function importing Dataset 
+def importdata(): 
+    balance_data = pd.read_csv('https://archive.ics.uci.edu/ml/machine-learning-'+'databases/balance-scale/balance-scale.data', 
+    sep= ',', header = None) 
+    
+     
+    print ("Dataset Length: ", len(balance_data)) 
+    print ("Dataset Shape: ", balance_data.shape)
+    print ("Dataset: ",balance_data.head()) 
+    return balance_data 
+
+# Function to split the dataset 
+def splitdataset(balance_data): 
+    X = balance_data.values[:, 1:5] 
+    Y = balance_data.values[:, 0] 
+
+    # Splitting the dataset into train and test 
+    X_train, X_test, y_train, y_test = train_test_split( 
+    X, Y, test_size = 0.3, random_state = 100) 
+    
+    return X, Y, X_train, X_test, y_train, y_test 
+    
+    
+# Function to perform training with entropy. 
+def tarin_using_entropy(X_train, X_test, y_train): 
+
+     
+    clf_entropy = DecisionTreeClassifier( 
+            criterion = "entropy", random_state = 100, 
+            max_depth = 3, min_samples_leaf = 5) 
+
+     
+    clf_entropy.fit(X_train, y_train) 
+    return clf_entropy 
+
+# Function to make predictions 
+def prediction(X_test, clf_object):  
+    y_pred = clf_object.predict(X_test) 
+    print("Predicted values:") 
+    print(y_pred)
+    return y_pred 
+# Function to calculate accuracy 
+def cal_accuracy(y_test, y_pred): 
+    print("Confusion Matrix: ", 
+    confusion_matrix(y_test, y_pred))
+    print ("Accuracy : ", 
+    accuracy_score(y_test,y_pred)*100) 
+    print("Report : ", 
+    classification_report(y_test, y_pred)) 
+
+# Driver code 
+def main():
+    data = importdata() 
+    X, Y, X_train, X_test, y_train, y_test = splitdataset(data) 
+    clf_gini = tarin_using_entropy(X_train, X_test, y_train) 
+    clf_entropy = tarin_using_entropy(X_train, X_test, y_train)
+    #print("Results Using Gini Index:")
+    #y_pred_gini = prediction(X_test, clf_gini) 
+    #cal_accuracy(y_test, y_pred_gini) 
+    print("Results Using Entropy:") 
+    y_pred_entropy = prediction(X_test, clf_entropy) 
+    cal_accuracy(y_test, y_pred_entropy)
+
+if __name__=="__main__": 
+    main() 
+
+
+Output:-
+
+Dataset Length:  625
+Dataset Shape:  (625, 5)
+Dataset:     0  1  2  3  4
+0  B  1  1  1  1
+1  R  1  1  1  2
+2  R  1  1  1  3
+3  R  1  1  1  4
+4  R  1  1  1  5
+
+Results Using Entropy:
+Predicted values:
+['R' 'L' 'R' 'L' 'R' 'L' 'R' 'L' 'R' 'R' 'R' 'R' 'L' 'L' 'R' 'L' 'R' 'L'
+ 'L' 'R' 'L' 'R' 'L' 'L' 'R' 'L' 'R' 'L' 'R' 'L' 'R' 'L' 'R' 'L' 'L' 'L'
+ 'L' 'L' 'R' 'L' 'R' 'L' 'R' 'L' 'R' 'R' 'L' 'L' 'R' 'L' 'L' 'R' 'L' 'L'
+ 'R' 'L' 'R' 'R' 'L' 'R' 'R' 'R' 'L' 'L' 'R' 'L' 'L' 'R' 'L' 'L' 'L' 'R'
+ 'R' 'L' 'R' 'L' 'R' 'R' 'R' 'L' 'R' 'L' 'L' 'L' 'L' 'R' 'R' 'L' 'R' 'L'
+ 'R' 'R' 'L' 'L' 'L' 'R' 'R' 'L' 'L' 'L' 'R' 'L' 'L' 'R' 'R' 'R' 'R' 'R'
+ 'R' 'L' 'R' 'L' 'R' 'R' 'L' 'R' 'R' 'L' 'R' 'R' 'L' 'R' 'R' 'R' 'L' 'L'
+ 'L' 'L' 'L' 'R' 'R' 'R' 'R' 'L' 'R' 'R' 'R' 'L' 'L' 'R' 'L' 'R' 'L' 'R'
+ 'L' 'R' 'R' 'L' 'L' 'R' 'L' 'R' 'R' 'R' 'R' 'R' 'L' 'R' 'R' 'R' 'R' 'R'
+ 'R' 'L' 'R' 'L' 'R' 'R' 'L' 'R' 'L' 'R' 'L' 'R' 'L' 'L' 'L' 'L' 'L' 'R'
+ 'R' 'R' 'L' 'L' 'L' 'R' 'R' 'R']
+Confusion Matrix:  [[ 0  6  7]
+ [ 0 63 22]
+ [ 0 20 70]]
+Accuracy :  70.74468085106383
+
+
+=========================Practical – 5==========================
+1.	Euclid
+Program:
+
+import numpy as np
+A = np.array([[1,2,3],[2,3,4],[0,1,2]])
+B = np.array([[1,2,3],[4,3,2]])
+M = A.shape[0]
+N = B.shape[0]
+A_dots = (A*A).sum(axis=1).reshape((M,1))*np.ones(shape=(1,N))
+B_dots = (B*B).sum(axis=1)*np.ones(shape=(M,1))
+-2*A.dot(B.T)
+D_squared =  A_dots + B_dots -2*A.dot(B.T)
+print(D_squared)
+
+Output:
+array([[ 0., 11.],
+       [ 3.,  8.],
+       [ 3., 20.]])
+
+
+2.	Manhattan
+
+Program:
+
+def manhattan_distance(point1, point2):
+    distance = 0
+    for x1, x2 in zip(point1, point2):
+        difference = x2 - x1
+        absolute_difference = abs(difference)
+        distance += absolute_difference
+
+    return distance
+x1 = (1,2,3,4,5,6)
+x2 = (10,20,30,1,2,3)
+print(manhattan_distance(x1,x2))
+
+Output:
+63
+
+
+    3.	Minkowski
+Program:
+
+from math import *
+from decimal import Decimal
+
+def p_root(value, root):
+	
+	root_value = 1 / float(root)
+	return round (Decimal(value) **
+			Decimal(root_value), 3)
+
+def minkowski_distance(x, y, p_value):
+
+	return (p_root(sum(pow(abs(a-b), p_value)
+			for a, b in zip(x, y)), p_value))
+
+# Driver Code
+vector1 = [0, 2, 3, 4]
+vector2 = [2, 4, 3, 7]
+p = 3
+print(minkowski_distance(vector1, vector2, p))
+
+
+Output:
+3.503
+
+
+
+================================Practical 7 ===============================
+
+
+Open weka explorer
+Open supermarket dataset
+Click on associate
+Select Apriori algorithm
+Click Start
+
+
+
+==============================Practical 8 ====================================
+
+Open preprocess tab
+Open soybean dataset
+Go to classifier tab
+Go to choose file
+Select Trees -> then J48
+Click Start
+
+
+
+===========================Practical 9 ======================================
+
+Open Weka explorer
+Open preprocess tab
+Click Open file and choose Iris dataset
+Go to classifiers tab
+Click on choose
+Select trees -> J48 , and enter
+Click start
+Click on choose
+Select bayes-> then Naive bayes
+Click Start
+Click on choose
+Select lazy->then Kstar
+Click start
+
+Compare them
+
+
+==========================Practical 10 ======================================
+
+Open Weka explorer
+Click on clustering tab
+Click on choose
+Select hierarchical clustering
+Click Start
+Click on Heirarchical clustering at the top in the inpu field
+You can change your specifications here
+Select Mahattan distance in the defenseFunction.
+You can selet inktype complete
+Click ok
+Cick Start
+Repeat this for Euclidean distance
+
+Import contact-lenses field
+Right click on the data in the left panel and select visualize tree option.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
